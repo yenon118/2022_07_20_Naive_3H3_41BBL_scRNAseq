@@ -1,0 +1,6 @@
+*/output/
+*/reference/
+*/data/
+*/scripts/log*
+*/scripts/*.out
+*/scripts/*.log
