@@ -67,6 +67,8 @@ for (filename in filenames) {
                 group_by(cluster) %>%
                 summarize(gene_count = n_distinct(gene)) %>%
                 as.data.frame(check.names = FALSE, stringsAsFactors = FALSE)
+            
+            df_for_plot$cluster <- factor(df_for_plot$cluster)
 
             p <- ggplot(data=df_for_plot, aes(x=cluster, y=gene_count, fill=cluster)) +
                 geom_bar(stat="identity") +
