@@ -21,7 +21,7 @@ library(biomaRt)
 # Output folder
 ##################################################
 
-output_path <- file.path("../output/MarkersSummaryFigures")
+output_path <- file.path("../output/SignificantMarkers")
 
 if(!dir.exists(output_path)){
   dir.create(output_path, showWarnings=FALSE, recursive=TRUE)
@@ -35,17 +35,16 @@ if(!dir.exists(output_path)){
 # Input files
 ##################################################
 
-folder_path = file.path("../output/SignificantMarkers")
+folder_path = file.path("../output/Markers")
 
 filenames = list.files(folder_path)
 
 
 ##################################################
-# Process data and plotting
+# Process data
 ##################################################
 
 for (filename in filenames) {
-
     dat <- tryCatch({
         read.table(
             file = file.path(folder_path, filename),
@@ -60,25 +59,16 @@ for (filename in filenames) {
 
     if (!is.null(dat)) {
         if(nrow(dat) > 0 & ncol(dat) > 0) {
-            df_for_plot <- dat %>%
-                group_by(cluster) %>%
-                summarize(gene_count = n_distinct(gene)) %>%
-                as.data.frame(check.names = FALSE, stringsAsFactors = FALSE)
+            dat <- dat[dat$p_val <= 0.01, ]
+            dat <- dat[dat$avg_log2FC <= -1 | dat$avg_log2FC >= 1, ]
             
-            df_for_plot$cluster <- factor(df_for_plot$cluster)
-
-            p <- ggplot(data=df_for_plot, aes(x=cluster, y=gene_count, fill=cluster)) +
-                geom_bar(stat="identity") +
-                geom_text(aes(label=gene_count), hjust=1.5, color="black", size=3.5) +
-                labs(title = "Counts of Significant Differentially Expressed Genes") + 
-                coord_flip()
-
-            ggsave(
-                filename = paste0(gsub("(.txt)|(.csv)|(.tsv)", "", filename), "_DEG_counts.png"),
-                plot = p,
-                path = output_path,
-                width = 14,
-                height = 7
+            write.table(
+                x = dat,
+                file = file.path(output_path, filename),
+                sep = "\t",
+                na = "",
+                quote = FALSE,
+                row.names = FALSE
             )
         }
     }

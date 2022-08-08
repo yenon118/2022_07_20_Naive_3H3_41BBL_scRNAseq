@@ -35,7 +35,7 @@ if(!dir.exists(output_path)){
 # Input files
 ##################################################
 
-folder_path = file.path("../output/Markers")
+folder_path = file.path("../output/SignificantMarkers")
 
 filenames = list.files(folder_path)
 
@@ -150,9 +150,6 @@ for (filename in filenames) {
     if (!is.null(dat)) {
         if(nrow(dat) > 0 & ncol(dat) > 0) {
             bm_table <- getBMTable(values = unique(sort(dat$gene)), dataset = "mmusculus_gene_ensembl")
-
-            dat <- dat[dat$p_val <= 0.01, ]
-            dat <- dat[dat$avg_log2FC <= -1 | dat$avg_log2FC >= 1, ]
 
             dat$external_gene_name <- dat$gene
 
