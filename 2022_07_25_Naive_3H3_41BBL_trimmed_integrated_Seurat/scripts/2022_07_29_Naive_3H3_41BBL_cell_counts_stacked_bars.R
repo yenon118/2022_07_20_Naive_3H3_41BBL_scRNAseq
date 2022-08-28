@@ -63,7 +63,8 @@ plotStackBarPlot <- function(file_path_1, sheet, is.num = FALSE) {
 
     p <- ggplot(dat1, aes(fill=Experiment, y=Cell_Count, x=Cluster)) + 
         geom_bar(position="stack", stat="identity") + 
-        labs(title=paste0(sheet))
+        labs(title=paste0(sheet)) +
+        theme(axis.text.x = element_text(angle=45, hjust=1))
 
     ggsave(
         filename = paste0("cell_counts_", sheet, ".png"),
@@ -74,7 +75,7 @@ plotStackBarPlot <- function(file_path_1, sheet, is.num = FALSE) {
     )
 }
 
-plotStackBarPlot(dat_file_path, "cluster", is.num = TRUE)
+plotStackBarPlot(dat_file_path, "seurat_clusters", is.num = TRUE)
 plotStackBarPlot(dat_file_path, "HumanPrimaryCellAtlasData")
 plotStackBarPlot(dat_file_path, "BlueprintEncodeData")
 plotStackBarPlot(dat_file_path, "MouseRNAseqData")

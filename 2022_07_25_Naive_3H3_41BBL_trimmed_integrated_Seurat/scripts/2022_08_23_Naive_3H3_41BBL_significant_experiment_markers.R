@@ -21,7 +21,7 @@ library(biomaRt)
 # Output folder
 ##################################################
 
-output_path <- file.path("../output/SignificantMarkers")
+output_path <- file.path("../output/SignificantExperimentMarkers")
 
 if(!dir.exists(output_path)){
   dir.create(output_path, showWarnings=FALSE, recursive=TRUE)
@@ -35,7 +35,7 @@ if(!dir.exists(output_path)){
 # Input files
 ##################################################
 
-folder_path = file.path("../output/Markers")
+folder_path = file.path("../output/ExperimentMarkers")
 
 filenames = list.files(folder_path)
 

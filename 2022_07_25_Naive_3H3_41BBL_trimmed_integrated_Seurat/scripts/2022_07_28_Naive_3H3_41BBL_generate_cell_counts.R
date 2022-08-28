@@ -109,7 +109,7 @@ dat_MonacoImmuneData_cell_counts <- dat_table %>%
 
 wb <- createWorkbook()
 
-addWorksheet(wb, "cluster")
+addWorksheet(wb, "seurat_clusters")
 addWorksheet(wb, "HumanPrimaryCellAtlasData")
 addWorksheet(wb, "BlueprintEncodeData")
 addWorksheet(wb, "MouseRNAseqData")
@@ -118,7 +118,7 @@ addWorksheet(wb, "DbImmuneCellExpressionData")
 addWorksheet(wb, "NovershternHematopoieticData")
 addWorksheet(wb, "MonacoImmuneData")
 
-writeData(wb, "cluster", dat_cluster_cell_counts)
+writeData(wb, "seurat_clusters", dat_cluster_cell_counts)
 writeData(wb, "HumanPrimaryCellAtlasData", dat_HumanPrimaryCellAtlasData_cell_counts)
 writeData(wb, "BlueprintEncodeData", dat_BlueprintEncodeData_cell_counts)
 writeData(wb, "MouseRNAseqData", dat_MouseRNAseqData_cell_counts)

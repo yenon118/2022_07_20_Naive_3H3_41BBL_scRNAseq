@@ -98,7 +98,7 @@ plotHeatmap <- function(file_path_1, sheet) {
 
 }
 
-plotHeatmap(dat_file_path, "cluster")
+plotHeatmap(dat_file_path, "seurat_clusters")
 plotHeatmap(dat_file_path, "HumanPrimaryCellAtlasData")
 plotHeatmap(dat_file_path, "BlueprintEncodeData")
 plotHeatmap(dat_file_path, "MouseRNAseqData")

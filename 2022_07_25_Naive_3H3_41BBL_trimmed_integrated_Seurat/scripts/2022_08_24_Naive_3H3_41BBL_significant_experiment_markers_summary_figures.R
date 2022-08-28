@@ -21,7 +21,7 @@ library(biomaRt)
 # Output folder
 ##################################################
 
-output_path <- file.path("../output/MarkersSummaryFigures")
+output_path <- file.path("../output/SignificantExperimentMarkersSummaryFigures")
 
 if(!dir.exists(output_path)){
   dir.create(output_path, showWarnings=FALSE, recursive=TRUE)
@@ -35,7 +35,7 @@ if(!dir.exists(output_path)){
 # Input files
 ##################################################
 
-folder_path = file.path("../output/SignificantMarkers")
+folder_path = file.path("../output/SignificantExperimentMarkers")
 
 filenames = list.files(folder_path)
 
@@ -71,14 +71,15 @@ for (filename in filenames) {
                 geom_bar(stat="identity") +
                 geom_text(aes(label=gene_count), hjust=1.5, color="black", size=3.5) +
                 labs(title = "Counts of Significant Differentially Expressed Genes") + 
-                coord_flip()
+                coord_flip() + 
+                theme(legend.position = "none")
 
             ggsave(
                 filename = paste0(gsub("(.txt)|(.csv)|(.tsv)", "", filename), "_DEG_counts.png"),
                 plot = p,
                 path = output_path,
                 width = 14,
-                height = 7
+                height = 9
             )
         }
     }

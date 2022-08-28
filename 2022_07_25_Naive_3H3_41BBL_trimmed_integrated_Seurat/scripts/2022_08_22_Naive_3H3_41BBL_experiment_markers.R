@@ -27,7 +27,7 @@ library(biomaRt)
 # Output folder
 ##################################################
 
-output_path <- file.path("../output/Markers")
+output_path <- file.path("../output/ExperimentMarkers")
 
 if(!dir.exists(output_path)){
   dir.create(output_path, showWarnings=FALSE, recursive=TRUE)
@@ -63,6 +63,14 @@ args <- parser$parse_args()
 
 DefaultAssay(dat) <- "RNA"
 
+dat[["HumanPrimaryCellAtlasData_Experiment"]] <- paste0(dat[["HumanPrimaryCellAtlasData"]][,1], " (", dat[["Experiment"]][,1], ")")
+dat[["BlueprintEncodeData_Experiment"]] <- paste0(dat[["BlueprintEncodeData"]][,1], " (", dat[["Experiment"]][,1], ")")
+dat[["MouseRNAseqData_Experiment"]] <- paste0(dat[["MouseRNAseqData"]][,1], " (", dat[["Experiment"]][,1], ")")
+dat[["ImmGenData_Experiment"]] <- paste0(dat[["ImmGenData"]][,1], " (", dat[["Experiment"]][,1], ")")
+dat[["DatabaseImmuneCellExpressionData_Experiment"]] <- paste0(dat[["DatabaseImmuneCellExpressionData"]][,1], " (", dat[["Experiment"]][,1], ")")
+dat[["NovershternHematopoieticData_Experiment"]] <- paste0(dat[["NovershternHematopoieticData"]][,1], " (", dat[["Experiment"]][,1], ")")
+dat[["MonacoImmuneData_Experiment"]] <- paste0(dat[["MonacoImmuneData"]][,1], " (", dat[["Experiment"]][,1], ")")
+
 libraries <- tryCatch({
   args$libraries
 }, error = function(e) {
@@ -71,15 +79,13 @@ libraries <- tryCatch({
 
 if(is.null(libraries)) {
   libraries <- c(
-    "seurat_clusters",
-    "HumanPrimaryCellAtlasData",
-    "BlueprintEncodeData",
-    "MouseRNAseqData",
-    "ImmGenData",
-    "DatabaseImmuneCellExpressionData",
-    "NovershternHematopoieticData",
-    "MonacoImmuneData",
-    "Experiment"
+    "HumanPrimaryCellAtlasData_Experiment",
+    "BlueprintEncodeData_Experiment",
+    "MouseRNAseqData_Experiment",
+    "ImmGenData_Experiment",
+    "DatabaseImmuneCellExpressionData_Experiment",
+    "NovershternHematopoieticData_Experiment",
+    "MonacoImmuneData_Experiment"
   )
 }
 

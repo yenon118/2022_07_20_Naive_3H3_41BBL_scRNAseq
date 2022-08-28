@@ -15,6 +15,8 @@ library(Seurat)
 library(patchwork)
 library(celldex)
 library(SingleR)
+library(scRNAseq)
+library(scater)
 
 
 ##################################################
@@ -40,7 +42,7 @@ if(!dir.exists(output_path)){
 # Read in input file
 ##################################################
 
-dat_3_samples <- readRDS(
+dat <- readRDS(
     file = file.path("../output/Seurat/data.rds")
 )
 
@@ -58,20 +60,19 @@ refMonacoImmuneData <- celldex::MonacoImmuneData(ensembl = FALSE)
 # Perform Prediction
 ##################################################
 
-DefaultAssay(dat_3_samples) <- "RNA"
+DefaultAssay(dat) <- "RNA"
 
-print(head(dat_3_samples[[]]))
-print(head(Idents(dat_3_samples)))
+print(head(dat[[]]))
+print(head(Idents(dat)))
 
-mapClusterToCellTypes <- function(dat, ref) {
+mapClusterToCellTypes <- function(dat, ref, labels) {
   # Convert Seurat object to Single Cell Experiment class
   dat.sce <- as.SingleCellExperiment(dat)
 
   predictions <- SingleR(
     test=dat.sce,
-    ref=ref, 
-    labels=ref$label.main,
-    # labels=ref$label.fine,
+    ref=ref,
+    labels=labels,
     assay.type.test=1,
     clusters = Idents(dat)
   )
@@ -83,38 +84,67 @@ mapClusterToCellTypes <- function(dat, ref) {
 }
 
 
-dat_3_labels_HumanPrimaryCellAtlasData <- mapClusterToCellTypes(dat_3_samples, refHumanPrimaryCellAtlasData)
-dat_3_labels_BlueprintEncodeData <- mapClusterToCellTypes(dat_3_samples, refBlueprintEncodeData)
-dat_3_labels_MouseRNAseqData <- mapClusterToCellTypes(dat_3_samples, refMouseRNAseqData)
-dat_3_labels_ImmGenData <- mapClusterToCellTypes(dat_3_samples, refImmGenData)
-dat_3_labels_DatabaseImmuneCellExpressionData <- mapClusterToCellTypes(dat_3_samples, refDatabaseImmuneCellExpressionData)
-dat_3_labels_NovershternHematopoieticData <- mapClusterToCellTypes(dat_3_samples, refNovershternHematopoieticData)
-dat_3_labels_MonacoImmuneData <- mapClusterToCellTypes(dat_3_samples, refMonacoImmuneData)
+dat_labels_HumanPrimaryCellAtlasData <- mapClusterToCellTypes(
+  dat, 
+  refHumanPrimaryCellAtlasData, 
+  refHumanPrimaryCellAtlasData$label.fine
+)
+dat_labels_BlueprintEncodeData <- mapClusterToCellTypes(
+  dat, 
+  refBlueprintEncodeData, 
+  refBlueprintEncodeData$label.fine
+)
+dat_labels_MouseRNAseqData <- mapClusterToCellTypes(
+  dat, 
+  refMouseRNAseqData, 
+  refMouseRNAseqData$label.fine
+)
+dat_labels_ImmGenData <- mapClusterToCellTypes(
+  dat, 
+  refImmGenData, 
+  refImmGenData$label.fine
+)
+dat_labels_DatabaseImmuneCellExpressionData <- mapClusterToCellTypes(
+  dat, 
+  refDatabaseImmuneCellExpressionData, 
+  refDatabaseImmuneCellExpressionData$label.fine
+)
+dat_labels_NovershternHematopoieticData <- mapClusterToCellTypes(
+  dat, 
+  refNovershternHematopoieticData, 
+  refNovershternHematopoieticData$label.fine
+)
+dat_labels_MonacoImmuneData <- mapClusterToCellTypes(
+  dat, 
+  refMonacoImmuneData, 
+  refMonacoImmuneData$label.fine
+)
 
 
-cluster_numeric <- as.numeric(levels(dat_3_samples[["seurat_clusters"]][,1]))[dat_3_samples[["seurat_clusters"]][,1]]
+cluster_numeric <- as.numeric(levels(dat[["seurat_clusters"]][,1]))[dat[["seurat_clusters"]][,1]]
 cluster_numeric_idx <- cluster_numeric + 1
 
-dat_3_samples[["HumanPrimaryCellAtlasData"]] <- dat_3_labels_HumanPrimaryCellAtlasData[cluster_numeric_idx]
-dat_3_samples[["BlueprintEncodeData"]] <- dat_3_labels_BlueprintEncodeData[cluster_numeric_idx]
-dat_3_samples[["MouseRNAseqData"]] <- dat_3_labels_MouseRNAseqData[cluster_numeric_idx]
-dat_3_samples[["ImmGenData"]] <- dat_3_labels_ImmGenData[cluster_numeric_idx]
-dat_3_samples[["DatabaseImmuneCellExpressionData"]] <- dat_3_labels_DatabaseImmuneCellExpressionData[cluster_numeric_idx]
-dat_3_samples[["NovershternHematopoieticData"]] <- dat_3_labels_NovershternHematopoieticData[cluster_numeric_idx]
-dat_3_samples[["MonacoImmuneData"]] <- dat_3_labels_MonacoImmuneData[cluster_numeric_idx]
+
+dat[["HumanPrimaryCellAtlasData"]] <- dat_labels_HumanPrimaryCellAtlasData[cluster_numeric_idx]
+dat[["BlueprintEncodeData"]] <- dat_labels_BlueprintEncodeData[cluster_numeric_idx]
+dat[["MouseRNAseqData"]] <- dat_labels_MouseRNAseqData[cluster_numeric_idx]
+dat[["ImmGenData"]] <- dat_labels_ImmGenData[cluster_numeric_idx]
+dat[["DatabaseImmuneCellExpressionData"]] <- dat_labels_DatabaseImmuneCellExpressionData[cluster_numeric_idx]
+dat[["NovershternHematopoieticData"]] <- dat_labels_NovershternHematopoieticData[cluster_numeric_idx]
+dat[["MonacoImmuneData"]] <- dat_labels_MonacoImmuneData[cluster_numeric_idx]
 
 
 ##################################################
 # Plotting
 ##################################################
 
-plotDimPlot <- function(dat, dat_name = "NoName", reduction = "umap", ref = "HumanPrimaryCellAtlasData") {
+plotDimPlot <- function(dat, reduction = "umap", ref = "HumanPrimaryCellAtlasData") {
   p <- DimPlot(dat, reduction = reduction, label = TRUE, pt.size = 0.5, group.by = ref, raster = FALSE) + NoLegend()
 
   if (reduction == "umap") {
-    filename = paste0("DimPlot_UMAP_singler_", dat_name, "_", ref, ".png")
+    filename = paste0("DimPlot_UMAP_singler_", ref, ".png")
   } else if (reduction == "tsne") {
-    filename = paste0("DimPlot_tSNE_singler_", dat_name, "_", ref, ".png")
+    filename = paste0("DimPlot_tSNE_singler_", ref, ".png")
   }
 
   ggsave(
@@ -126,32 +156,32 @@ plotDimPlot <- function(dat, dat_name = "NoName", reduction = "umap", ref = "Hum
   )
 }
 
-plotDimPlot(dat_3_samples, "3", "umap", "HumanPrimaryCellAtlasData")
-plotDimPlot(dat_3_samples, "3", "umap", "BlueprintEncodeData")
-plotDimPlot(dat_3_samples, "3", "umap", "MouseRNAseqData")
-plotDimPlot(dat_3_samples, "3", "umap", "ImmGenData")
-plotDimPlot(dat_3_samples, "3", "umap", "DatabaseImmuneCellExpressionData")
-plotDimPlot(dat_3_samples, "3", "umap", "NovershternHematopoieticData")
-plotDimPlot(dat_3_samples, "3", "umap", "MonacoImmuneData")
+plotDimPlot(dat, "umap", "HumanPrimaryCellAtlasData")
+plotDimPlot(dat, "umap", "BlueprintEncodeData")
+plotDimPlot(dat, "umap", "MouseRNAseqData")
+plotDimPlot(dat, "umap", "ImmGenData")
+plotDimPlot(dat, "umap", "DatabaseImmuneCellExpressionData")
+plotDimPlot(dat, "umap", "NovershternHematopoieticData")
+plotDimPlot(dat, "umap", "MonacoImmuneData")
 
-plotDimPlot(dat_3_samples, "3", "tsne", "HumanPrimaryCellAtlasData")
-plotDimPlot(dat_3_samples, "3", "tsne", "BlueprintEncodeData")
-plotDimPlot(dat_3_samples, "3", "tsne", "MouseRNAseqData")
-plotDimPlot(dat_3_samples, "3", "tsne", "ImmGenData")
-plotDimPlot(dat_3_samples, "3", "tsne", "DatabaseImmuneCellExpressionData")
-plotDimPlot(dat_3_samples, "3", "tsne", "NovershternHematopoieticData")
-plotDimPlot(dat_3_samples, "3", "tsne", "MonacoImmuneData")
+plotDimPlot(dat, "tsne", "HumanPrimaryCellAtlasData")
+plotDimPlot(dat, "tsne", "BlueprintEncodeData")
+plotDimPlot(dat, "tsne", "MouseRNAseqData")
+plotDimPlot(dat, "tsne", "ImmGenData")
+plotDimPlot(dat, "tsne", "DatabaseImmuneCellExpressionData")
+plotDimPlot(dat, "tsne", "NovershternHematopoieticData")
+plotDimPlot(dat, "tsne", "MonacoImmuneData")
 
 
 ##################################################
 # Convert meta.data in Seurat object to data frame
 ##################################################
 
-dat_3_samples_table <- dat_3_samples[[]] %>% 
+dat_table <- dat[[]] %>% 
   as.data.frame(check.names = FALSE, stringsAsFactors = FALSE)
 
 
 ##################################################
 # Save data
 ##################################################
-saveRDS(dat_3_samples, file = file.path(output_path, "data.rds"))
+saveRDS(dat, file = file.path(output_path, "data.rds"))
