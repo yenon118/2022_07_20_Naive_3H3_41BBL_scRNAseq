@@ -154,6 +154,22 @@ plotDimPlot <- function(dat, reduction = "umap", ref = "HumanPrimaryCellAtlasDat
     width = 14,
     height = 7
   )
+
+  p <- DimPlot(dat, reduction = reduction, label = TRUE, pt.size = 0.5, group.by = ref, split.by = "Experiment", raster=FALSE) + NoLegend()
+
+  if (reduction == "umap") {
+    filename = paste0("DimPlot_UMAP_singler_", ref, "_Experiment.png")
+  } else if (reduction == "tsne") {
+    filename = paste0("DimPlot_tSNE_singler_", ref, "_Experiment.png")
+  }
+
+  ggsave(
+    filename = filename,
+    plot = p,
+    path = output_path,
+    width = 21,
+    height = 7
+  )
 }
 
 plotDimPlot(dat, "umap", "HumanPrimaryCellAtlasData")
